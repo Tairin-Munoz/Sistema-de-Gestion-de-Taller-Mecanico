@@ -1,22 +1,31 @@
+using Microsoft.EntityFrameworkCore;
+using TallerMecanico.Core.Interfaces;
+using TallerMecanico.Infrastructure.Repositories;
+using TallerMecanico.Infrastructure.Data;
+using TallerMecanico.Infrastructure.Mappings;
+using TallerMecanico.Services.Validators;
+using FluentValidation;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer("Server=.;Database=TallerMecanicoDb;Trusted_Connection=True;"));
+
+builder.Services.AddScoped<IVehiculoRepository, VehiculoRepository>();
+
+builder.Services.AddAutoMapper(typeof(VehiculoProfile));
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<VehiculoDtoValidator>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 
