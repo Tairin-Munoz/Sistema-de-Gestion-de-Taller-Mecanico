@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TallerMecanico.Core.DTOs;
 using TallerMecanico.Core.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TallerMecanico.Infrastructure.Mappings;
 

@@ -5,6 +5,7 @@ using TallerMecanico.Infrastructure.Data;
 using TallerMecanico.Infrastructure.Mappings;
 using TallerMecanico.Services.Validators;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
