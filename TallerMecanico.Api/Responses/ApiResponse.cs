@@ -1,12 +1,11 @@
-﻿namespace TallerMecanico.Api.Responses
-{
-    public class ApiResponse<T>
-    {
-        public T Data { get; set; }
+﻿namespace TallerMecanico.Api.Responses;
 
-        public ApiResponse(T data)
-        {
-            Data = data;
-        }
+public class ApiResponse<T>
+{
+    public T Data { get; set; }
+
+    public ApiResponse(T data)
+    {
+        Data = data;
     }
 }
