@@ -6,6 +6,12 @@ using TallerMecanico.Infrastructure.Mappings;
 using TallerMecanico.Services.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using TallerMecanico.Services.Interfaces;
+using TallerMecanico.Services.Services;
+
+
+builder.Services.AddTransient<IVehiculoService, VehiculoService>();
+builder.Services.AddTransient<IVehiculoService, VehiculoService>();
 
 var builder = WebApplication.CreateBuilder(args);
 
