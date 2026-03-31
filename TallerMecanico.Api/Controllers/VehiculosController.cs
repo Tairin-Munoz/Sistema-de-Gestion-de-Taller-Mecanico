@@ -3,6 +3,7 @@ using TallerMecanico.Core.Interfaces;
 using TallerMecanico.Core.DTOs;
 using AutoMapper;
 using TallerMecanico.Core.Entities;
+using TallerMecanico.Api.Responses;
 
 namespace TallerMecanico.Api.Controllers;
 
@@ -19,19 +20,26 @@ public class VehiculosController : ControllerBase
         _mapper = mapper;
     }
 
+    // GET
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
-        var data = _repo.GetAll();
-        var result = _mapper.Map<List<VehiculoDto>>(data);
-        return Ok(result);
+        var data = await _repo.GetAll();
+        var result = _mapper.Map<IEnumerable<VehiculoDto>>(data);
+
+        return Ok(new ApiResponse<IEnumerable<VehiculoDto>>(result));
     }
 
+    // POST
     [HttpPost]
-    public IActionResult Post([FromBody] VehiculoDto dto)
+    public async Task<IActionResult> Post([FromBody] VehiculoDto dto)
     {
         var entity = _mapper.Map<Vehiculo>(dto);
-        _repo.Add(entity);
-        return Ok();
+
+        await _repo.Add(entity);
+
+        var result = _mapper.Map<VehiculoDto>(entity);
+
+        return Ok(new ApiResponse<VehiculoDto>(result));
     }
 }
