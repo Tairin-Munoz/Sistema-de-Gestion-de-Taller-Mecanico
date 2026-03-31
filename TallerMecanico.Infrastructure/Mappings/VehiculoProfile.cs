@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using TallerMecanico.Core.DTOs;
 using TallerMecanico.Core.Entities;
-
 namespace TallerMecanico.Infrastructure.Mappings;
 
 public class VehiculoProfile : Profile
 {
     public VehiculoProfile()
     {
-        CreateMap<Vehiculo, VehiculoDto>().ReverseMap();
+        CreateMap<Vehiculo, VehiculoDto>();
+        CreateMap<VehiculoDto, Vehiculo>();
     }
 }
