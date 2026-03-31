@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace TallerMecanico.Core.Entities
 {
-    public class Vehiculo
+    public class Vehiculo : BaseEntity
     {
-        public int Id { get; set; }
-        public string Placa { get; set; }
-        public string Marca { get; set; }
-        public string Modelo { get; set; }
-        public int Anio { get; set; }
+        public string Marca { get; set; } = null!;
+        public string Modelo { get; set; } = null!;
+        public string Placa { get; set; } = null!;
+
+        public int PropietarioId { get; set; }
+
+        public virtual Propietario? Propietario { get; set; }
     }
 }
