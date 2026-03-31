@@ -9,7 +9,9 @@ namespace TallerMecanico.Core.Interfaces;
 
 public interface IVehiculoRepository
 {
-    List<Vehiculo> GetAll();
-    Vehiculo GetById(int id);
-    void Add(Vehiculo vehiculo);
+    Task<IEnumerable<Vehiculo>> GetAll();
+    Task<Vehiculo> GetById(int id);
+    Task Create(Vehiculo vehiculo);
+    Task Update(Vehiculo vehiculo);
+    Task Delete(Vehiculo vehiculo);
 }
