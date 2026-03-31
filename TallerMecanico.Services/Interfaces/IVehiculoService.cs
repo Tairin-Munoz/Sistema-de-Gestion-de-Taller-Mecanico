@@ -9,9 +9,9 @@ namespace TallerMecanico.Services.Interfaces;
 
 public interface IVehiculoService
 {
-    Task<IEnumerable<Vehiculo>> GetAll();
-    Task<Vehiculo> GetById(int id);
-    Task Create(Vehiculo vehiculo);
+    Task<IEnumerable<Vehiculo>> GetAllAsync();
+    Task<Vehiculo> GetByIdAsync(int id);
+    Task Insert(Vehiculo vehiculo);
     Task Update(Vehiculo vehiculo);
     Task Delete(int id);
 }

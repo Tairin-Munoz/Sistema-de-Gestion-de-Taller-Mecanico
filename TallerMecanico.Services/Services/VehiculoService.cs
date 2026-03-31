@@ -4,51 +4,72 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TallerMecanico.Core.Entities;
-using TallerMecanico.Core.Interfaces;
 using TallerMecanico.Services.Interfaces;
+using TallerMecanico.Core.Interfaces;
 
 namespace TallerMecanico.Services.Services;
 
 public class VehiculoService : IVehiculoService
 {
-    private readonly IVehiculoRepository _repository;
+    public readonly IBaseRepository<Vehiculo> _vehiculoRepository;
 
-    public VehiculoService(IVehiculoRepository repository)
+    public VehiculoService(IBaseRepository<Vehiculo> vehiculoRepository)
     {
-        _repository = repository;
+        _vehiculoRepository = vehiculoRepository;
     }
 
-    public async Task<IEnumerable<Vehiculo>> GetAll()
+    public async Task<IEnumerable<Vehiculo>> GetAllAsync()
     {
-        return await _repository.GetAll();
+        return await _vehiculoRepository.GetAll();
     }
 
-    public async Task<Vehiculo> GetById(int id)
+    public async Task<Vehiculo> GetByIdAsync(int id)
     {
-        return await _repository.GetById(id);
+        return await _vehiculoRepository.GetById(id);
     }
 
-    public async Task Create(Vehiculo vehiculo)
+    public async Task Insert(Vehiculo vehiculo)
     {
-        // 🔥 REGLA DE NEGOCIO
-        if (string.IsNullOrEmpty(vehiculo.Placa))
+        
+        if (string.IsNullOrWhiteSpace(vehiculo.Placa))
             throw new Exception("La placa es obligatoria");
 
-        await _repository.Add(vehiculo);
+        if (ContainsForbiddenWord(vehiculo.Marca))
+            throw new Exception("Contenido no permitido en la marca");
+
+        await _vehiculoRepository.Add(vehiculo);
     }
 
     public async Task Update(Vehiculo vehiculo)
     {
-        await _repository.Update(vehiculo);
+        await _vehiculoRepository.Update(vehiculo);
     }
 
     public async Task Delete(int id)
     {
-        var vehiculo = await _repository.GetById(id);
+        await _vehiculoRepository.Delete(id);
+    }
 
-        if (vehiculo == null)
-            throw new Exception("Vehiculo no encontrado");
+    
+    public readonly string[] ForbiddenWords =
+    {
+        "odio",
+        "violencia",
+        "ilegal",
+        "robado"
+    };
 
-        await _repository.Delete(vehiculo);
+    public bool ContainsForbiddenWord(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
+
+        foreach (var word in ForbiddenWords)
+        {
+            if (text.Contains(word, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 }
