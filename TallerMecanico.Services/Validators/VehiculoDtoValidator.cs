@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using TallerMecanico.Core.DTOs;
 
 namespace TallerMecanico.Services.Validators;
@@ -12,9 +7,17 @@ public class VehiculoDtoValidator : AbstractValidator<VehiculoDto>
 {
     public VehiculoDtoValidator()
     {
-        RuleFor(x => x.Placa).NotEmpty();
-        RuleFor(x => x.Marca).NotEmpty();
-        RuleFor(x => x.Modelo).NotEmpty();
-        RuleFor(x => x.Anio).GreaterThan(1900);
+        RuleFor(x => x.Marca)
+            .NotEmpty().WithMessage("La marca es obligatoria");
+
+        RuleFor(x => x.Modelo)
+            .NotEmpty().WithMessage("El modelo es obligatorio");
+
+        RuleFor(x => x.Placa)
+            .NotEmpty().WithMessage("La placa es obligatoria")
+            .MinimumLength(5).WithMessage("La placa debe tener al menos 5 caracteres");
+
+        RuleFor(x => x.PropietarioId)
+            .GreaterThan(0).WithMessage("Debe tener un propietario válido");
     }
 }
