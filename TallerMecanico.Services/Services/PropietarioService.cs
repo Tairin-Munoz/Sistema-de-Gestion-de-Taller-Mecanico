@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TallerMecanico.Core.Entities;
+﻿using TallerMecanico.Core.Entities;
 using TallerMecanico.Core.Interfaces;
 using TallerMecanico.Services.Interfaces;
 
@@ -11,30 +6,53 @@ namespace TallerMecanico.Services.Services;
 
 public class PropietarioService : IPropietarioService
 {
-    private readonly IBaseRepository<Propietario> _repo;
+    public readonly IBaseRepository<Propietario> _propietarioRepository;
 
-    public PropietarioService(IBaseRepository<Propietario> repo)
+    public PropietarioService(IBaseRepository<Propietario> propietarioRepository)
     {
-        _repo = repo;
+        _propietarioRepository = propietarioRepository;
     }
 
     public async Task<IEnumerable<Propietario>> GetAllAsync()
-        => await _repo.GetAll();
+    {
+        return await _propietarioRepository.GetAll();
+    }
 
     public async Task<Propietario> GetByIdAsync(int id)
-        => await _repo.GetById(id);
+    {
+        return await _propietarioRepository.GetById(id);
+    }
 
     public async Task Insert(Propietario propietario)
     {
-        if (string.IsNullOrWhiteSpace(propietario.Nombre))
-            throw new Exception("Nombre obligatorio");
+        var propietarios = await _propietarioRepository.GetAll();
 
-        await _repo.Add(propietario);
+        // RN-01: CI único
+        if (propietarios.Any(p => p.CI == propietario.CI))
+            throw new Exception("El CI ya está registrado");
+
+        // RN-02: No duplicar propietario
+        if (propietarios.Any(p =>
+            p.Nombre == propietario.Nombre &&
+            p.Apellido == propietario.Apellido))
+        {
+            throw new Exception("El propietario ya está registrado");
+        }
+
+        // RN-03: Teléfono único
+        if (propietarios.Any(p => p.Telefono == propietario.Telefono))
+            throw new Exception("El teléfono ya está registrado");
+
+        await _propietarioRepository.Add(propietario);
     }
 
     public async Task Update(Propietario propietario)
-        => await _repo.Update(propietario);
+    {
+        await _propietarioRepository.Update(propietario);
+    }
 
     public async Task Delete(int id)
-        => await _repo.Delete(id);
+    {
+        await _propietarioRepository.Delete(id);
+    }
 }
