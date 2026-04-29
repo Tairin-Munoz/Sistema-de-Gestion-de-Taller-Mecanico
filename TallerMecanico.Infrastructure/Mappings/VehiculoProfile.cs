@@ -14,5 +14,9 @@ public class VehiculoProfile : Profile
     {
         CreateMap<Vehiculo, VehiculoDto>();
         CreateMap<VehiculoDto, Vehiculo>();
+
+        CreateMap<Servicio, ServicioDto>();
+        CreateMap<ServicioDto, Servicio>();
+
     }
 }
