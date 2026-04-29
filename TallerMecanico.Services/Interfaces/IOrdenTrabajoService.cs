@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TallerMecanico.Core.Entities;
-
-public interface IOrdenTrabajoService
+namespace TallerMecanico.Services.Interfaces;
 {
-    Task<IEnumerable<OrdenTrabajo>> GetAllDapperAsync();
-    Task<OrdenTrabajo> GetByIdAsync(int id);
-    Task Insert(OrdenTrabajo orden);
-    Task Update(OrdenTrabajo orden);
-    Task Delete(int id);
+
+    public interface IOrdenTrabajoService
+    {
+        Task<IEnumerable<OrdenTrabajo>> GetAllDapperAsync();
+        Task<OrdenTrabajo> GetByIdAsync(int id);
+        Task Insert(OrdenTrabajo orden);
+        Task Update(OrdenTrabajo orden);
+        Task Delete(int id);
+    }
 }
