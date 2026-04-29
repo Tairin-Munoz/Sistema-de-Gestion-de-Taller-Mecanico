@@ -28,21 +28,23 @@ public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
 
     public async Task Add(T entity)
     {
-        await _entities.AddAsync(entity);
+        _entities.Add(entity);
+        await _context.SaveChangesAsync();
     }
 
-    public void Update(T entity)
+    public async Task Update(T entity)
     {
         _entities.Update(entity);
+        await _context.SaveChangesAsync();
     }
 
     public async Task Delete(int id)
     {
         var entity = await GetById(id);
-
         if (entity != null)
         {
             _entities.Remove(entity);
+            await _context.SaveChangesAsync();
         }
     }
 }

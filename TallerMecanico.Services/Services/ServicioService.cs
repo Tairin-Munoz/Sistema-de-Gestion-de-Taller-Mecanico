@@ -54,7 +54,7 @@ public class ServicioService : IServicioService
 
         try
         {
-            _unitOfWork.ServicioRepository.Update(servicio);
+            await _unitOfWork.ServicioRepository.Update(servicio);
             await _unitOfWork.CommitAsync();
         }
         catch

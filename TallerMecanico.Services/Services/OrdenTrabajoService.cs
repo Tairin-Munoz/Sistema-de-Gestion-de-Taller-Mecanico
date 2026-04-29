@@ -3,82 +3,81 @@ using TallerMecanico.Core.Interfaces;
 using TallerMecanico.Services.Interfaces;
 using TallerMecanico.Infrastructure.Queries;
 
-namespace TallerMecanico.Services.Services;
-
-public class OrdenTrabajoService : IOrdenTrabajoService
+namespace TallerMecanico.Services.Services
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IDapperContext _dapper;
-
-    public OrdenTrabajoService(IUnitOfWork unitOfWork, IDapperContext dapper)
+    public class OrdenTrabajoService : IOrdenTrabajoService
     {
-        _unitOfWork = unitOfWork;
-        _dapper = dapper;
-    }
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IDapperContext _dapper;
 
-    public async Task<IEnumerable<OrdenTrabajo>> GetAllDapperAsync()
-    {
-        var sql = OrdenTrabajoQuery.GetAll;
-        return await _dapper.QueryAsync<OrdenTrabajo>(sql);
-    }
-
-    public async Task<OrdenTrabajo> GetByIdAsync(int id)
-    {
-        return await _unitOfWork.OrdenTrabajoRepository.GetById(id);
-    }
-
-    public async Task Insert(OrdenTrabajo orden)
-    {
-        await _unitOfWork.BeginTransactionAsync();
-
-        try
+        public OrdenTrabajoService(IUnitOfWork unitOfWork, IDapperContext dapper)
         {
-            var vehiculo = await _unitOfWork.VehiculoRepository.GetById(orden.VehiculoId);
-            if (vehiculo == null)
-                throw new Exception("Vehículo no existe");
-
-            await _unitOfWork.OrdenTrabajoRepository.Add(orden);
-
-            await _unitOfWork.CommitAsync();
+            _unitOfWork = unitOfWork;
+            _dapper = dapper;
         }
-        catch
+
+        public async Task<IEnumerable<OrdenTrabajo>> GetAllDapperAsync()
         {
-            await _unitOfWork.RollbackAsync();
-            throw;
+            var sql = OrdenTrabajoQuery.GetAll;
+            return await _dapper.QueryAsync<OrdenTrabajo>(sql);
         }
-    }
 
-    public async Task Update(OrdenTrabajo orden)
-    {
-        await _unitOfWork.BeginTransactionAsync();
-
-        try
+        public async Task<OrdenTrabajo> GetByIdAsync(int id)
         {
-            _unitOfWork.OrdenTrabajoRepository.Update(orden);
-
-            await _unitOfWork.CommitAsync();
+            return await _unitOfWork.OrdenTrabajoRepository.GetById(id);
         }
-        catch
+
+        public async Task Insert(OrdenTrabajo orden)
         {
-            await _unitOfWork.RollbackAsync();
-            throw;
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                var vehiculo = await _unitOfWork.VehiculoRepository.GetById(orden.VehiculoId);
+                if (vehiculo == null)
+                    throw new Exception("Vehículo no existe");
+
+                await _unitOfWork.OrdenTrabajoRepository.Add(orden);
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
-    }
 
-    public async Task Delete(int id)
-    {
-        await _unitOfWork.BeginTransactionAsync();
-
-        try
+        public async Task Update(OrdenTrabajo orden)
         {
-            await _unitOfWork.OrdenTrabajoRepository.Delete(id);
+            await _unitOfWork.BeginTransactionAsync();
 
-            await _unitOfWork.CommitAsync();
+            try
+            {
+                await _unitOfWork.OrdenTrabajoRepository.Update(orden);
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
-        catch
+
+        public async Task Delete(int id)
         {
-            await _unitOfWork.RollbackAsync();
-            throw;
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                await _unitOfWork.OrdenTrabajoRepository.Delete(id);
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
     }
 }

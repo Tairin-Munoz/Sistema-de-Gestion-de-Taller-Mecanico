@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Dapper;
 using TallerMecanico.Core.Interfaces;
 
@@ -6,13 +8,18 @@ namespace TallerMecanico.Infrastructure.Data;
 
 public class DapperContext : IDapperContext
 {
-    private readonly IDbConnectionFactory _factory;
-    private IDbConnection? _connection;
-    private IDbTransaction? _transaction;
+    private readonly IConfiguration _config;
+    private IDbConnection _connection;
+    private IDbTransaction _transaction;
 
-    public DapperContext(IDbConnectionFactory factory)
+    public DapperContext(IConfiguration config)
     {
-        _factory = factory;
+        _config = config;
+    }
+
+    public IDbConnection CreateConnection()
+    {
+        return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
     }
 
     public void SetAmbientConnection(IDbConnection connection, IDbTransaction transaction)
@@ -27,15 +34,21 @@ public class DapperContext : IDapperContext
         _transaction = null;
     }
 
-    public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null)
+    public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object? parameters = null)
     {
-        var conn = _connection ?? _factory.CreateConnection();
-        return await conn.QueryAsync<T>(sql, param, _transaction);
+        if (_connection != null)
+            return await _connection.QueryAsync<T>(sql, parameters, transaction: _transaction);
+
+        using var connection = CreateConnection();
+        return await connection.QueryAsync<T>(sql, parameters);
     }
 
-    public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object? param = null)
+    public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object? parameters = null)
     {
-        var conn = _connection ?? _factory.CreateConnection();
-        return await conn.QueryFirstOrDefaultAsync<T>(sql, param, _transaction);
+        if (_connection != null)
+            return await _connection.QueryFirstOrDefaultAsync<T>(sql, parameters, transaction: _transaction);
+
+        using var connection = CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<T>(sql, parameters);
     }
 }

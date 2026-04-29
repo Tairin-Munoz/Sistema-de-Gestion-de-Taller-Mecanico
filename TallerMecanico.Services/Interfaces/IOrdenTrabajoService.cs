@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TallerMecanico.Core.Entities;
-namespace TallerMecanico.Services.Interfaces;
-{
 
+namespace TallerMecanico.Services.Interfaces
+{
     public interface IOrdenTrabajoService
     {
         Task<IEnumerable<OrdenTrabajo>> GetAllDapperAsync();

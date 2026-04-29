@@ -70,9 +70,12 @@ public class ServiciosController : ControllerBase
         }
 
         var entity = _mapper.Map<Servicio>(dto);
+
         await _service.Insert(entity);
 
-        return Ok(new ApiResponse<ServicioDto>(dto));
+        var result = _mapper.Map<ServicioDto>(entity);
+
+        return Ok(new ApiResponse<ServicioDto>(result));
     }
 
     [HttpPut("{id}")]
