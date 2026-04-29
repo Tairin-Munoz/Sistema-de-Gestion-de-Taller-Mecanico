@@ -24,6 +24,6 @@ public class CrearPropietarioDtoValidator : AbstractValidator<PropietarioDto>
         RuleFor(x => x.Telefono)
             .NotEmpty().WithMessage("El teléfono es obligatorio")
             .Matches(@"^\d{8}$")
-            .WithMessage("El teléfono debe tener 8 dígitos numéricos");
+            .WithMessage("El teléfono debe tener 8 dígitos numéricos y no letras");
     }
 }

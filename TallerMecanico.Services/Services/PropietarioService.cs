@@ -27,11 +27,11 @@ public class PropietarioService : IPropietarioService
     {
         var propietarios = await _propietarioRepository.GetAll();
 
-        // RN-01: CI único
+        
         if (propietarios.Any(p => p.CI == propietario.CI))
             throw new Exception("El CI ya está registrado");
 
-        // RN-02: No duplicar propietario
+        
         if (propietarios.Any(p =>
             p.Nombre == propietario.Nombre &&
             p.Apellido == propietario.Apellido))
@@ -39,7 +39,7 @@ public class PropietarioService : IPropietarioService
             throw new Exception("El propietario ya está registrado");
         }
 
-        // RN-03: Teléfono único
+        
         if (propietarios.Any(p => p.Telefono == propietario.Telefono))
             throw new Exception("El teléfono ya está registrado");
 

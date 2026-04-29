@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TallerMecanico.Core.Entities;
 using TallerMecanico.Core.Interfaces;
 using TallerMecanico.Infrastructure.Data;
@@ -33,14 +28,12 @@ public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
 
     public async Task Add(T entity)
     {
-        _entities.Add(entity);
-        await _context.SaveChangesAsync();
+        await _entities.AddAsync(entity);
     }
 
-    public async Task Update(T entity)
+    public void Update(T entity)
     {
         _entities.Update(entity);
-        await _context.SaveChangesAsync();
     }
 
     public async Task Delete(int id)
@@ -50,7 +43,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
         if (entity != null)
         {
             _entities.Remove(entity);
-            await _context.SaveChangesAsync();
         }
     }
 }

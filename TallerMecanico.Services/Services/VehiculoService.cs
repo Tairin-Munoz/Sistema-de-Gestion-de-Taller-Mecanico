@@ -29,18 +29,18 @@ public class VehiculoService : IVehiculoService
 
     public async Task Insert(Vehiculo vehiculo)
     {
-        // RN-01: Propietario debe existir
+        
         var propietario = await _propietarioRepository.GetById(vehiculo.PropietarioId);
         if (propietario == null)
             throw new Exception("El propietario no existe");
 
         var vehiculos = await _vehiculoRepository.GetAll();
 
-        // RN-02: Placa única
+       
         if (vehiculos.Any(v => v.Placa == vehiculo.Placa))
             throw new Exception("La placa ya está registrada");
 
-        // RN-03: No duplicar vehículo por propietario
+        
         if (vehiculos.Any(v =>
             v.PropietarioId == vehiculo.PropietarioId &&
             v.Marca == vehiculo.Marca &&
