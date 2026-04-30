@@ -13,20 +13,18 @@ public class ActualizarVehiculoDtoValidator : AbstractValidator<VehiculoDto>
     public ActualizarVehiculoDtoValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0)
-            .WithMessage("El ID es obligatorio para actualizar");
+            .GreaterThan(0);
 
         RuleFor(x => x.Marca)
-            .NotEmpty().WithMessage("La marca es obligatoria");
+            .NotEmpty();
 
         RuleFor(x => x.Modelo)
-            .NotEmpty().WithMessage("El modelo es obligatorio");
+            .NotEmpty();
 
         RuleFor(x => x.Placa)
-            .NotEmpty().WithMessage("La placa es obligatoria");
+            .NotEmpty();
 
         RuleFor(x => x.PropietarioId)
-            .GreaterThan(0)
-            .WithMessage("Debe tener propietario válido");
+            .GreaterThan(0);
     }
 }

@@ -17,19 +17,34 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<TallerMecanicoContext>(options =>
-    options.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=TallerMecanicoDb;Trusted_Connection=True;")
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+builder.Services.AddScoped<IDapperContext, DapperContext>();
+
+
 
 builder.Services.AddScoped<IVehiculoService, VehiculoService>();
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
 
+
+builder.Services.AddScoped<IServicioService, ServicioService>();
+builder.Services.AddScoped<IOrdenTrabajoService, OrdenTrabajoService>();
+
+
 builder.Services.AddAutoMapper(typeof(VehiculoProfile));
-builder.Services.AddAutoMapper(typeof(PropietarioProfile));
 
 
+//builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CrearVehiculoDtoValidator>();
+
 
 var app = builder.Build();
 
@@ -40,6 +55,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Crear DB si no existe
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<TallerMecanicoContext>();

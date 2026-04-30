@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TallerMecanico.Core\TallerMecanico.Core.csproj" />
+    <ProjectReference Include="..\TallerMecanico.Infrastructure\TallerMecanico.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

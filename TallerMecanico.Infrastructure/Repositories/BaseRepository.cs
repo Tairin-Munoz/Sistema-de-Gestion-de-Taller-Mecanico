@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TallerMecanico.Core.Entities;
 using TallerMecanico.Core.Interfaces;
 using TallerMecanico.Infrastructure.Data;
@@ -46,7 +41,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     public async Task Delete(int id)
     {
         var entity = await GetById(id);
-
         if (entity != null)
         {
             _entities.Remove(entity);

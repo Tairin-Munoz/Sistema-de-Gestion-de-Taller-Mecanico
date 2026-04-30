@@ -14,5 +14,14 @@ public class VehiculoProfile : Profile
     {
         CreateMap<Vehiculo, VehiculoDto>();
         CreateMap<VehiculoDto, Vehiculo>();
+
+        CreateMap<Servicio, ServicioDto>();
+        CreateMap<ServicioDto, Servicio>();
+
+        CreateMap<OrdenTrabajo, OrdenTrabajoDto>();
+        CreateMap<OrdenTrabajoDto, OrdenTrabajo>()
+            .ForMember(dest => dest.Fecha,
+                opt => opt.MapFrom(src => DateTime.Parse(src.Fecha)));
+
     }
 }

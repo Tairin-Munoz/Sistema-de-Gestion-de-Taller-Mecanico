@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TallerMecanico.Core.Entities;
-using TallerMecanico.Services.Interfaces;
+﻿using TallerMecanico.Core.Entities;
 using TallerMecanico.Core.Interfaces;
+using TallerMecanico.Services.Interfaces;
 
 namespace TallerMecanico.Services.Services;
 
 public class VehiculoService : IVehiculoService
 {
     public readonly IBaseRepository<Vehiculo> _vehiculoRepository;
+    public readonly IBaseRepository<Propietario> _propietarioRepository;
 
-    public VehiculoService(IBaseRepository<Vehiculo> vehiculoRepository)
+    public VehiculoService(
+        IBaseRepository<Vehiculo> vehiculoRepository,
+        IBaseRepository<Propietario> propietarioRepository)
     {
         _vehiculoRepository = vehiculoRepository;
+        _propietarioRepository = propietarioRepository;
     }
 
     public async Task<IEnumerable<Vehiculo>> GetAllAsync()
@@ -31,11 +30,24 @@ public class VehiculoService : IVehiculoService
     public async Task Insert(Vehiculo vehiculo)
     {
         
-        if (string.IsNullOrWhiteSpace(vehiculo.Placa))
-            throw new Exception("La placa es obligatoria");
+        var propietario = await _propietarioRepository.GetById(vehiculo.PropietarioId);
+        if (propietario == null)
+            throw new Exception("El propietario no existe");
 
-        if (ContainsForbiddenWord(vehiculo.Marca))
-            throw new Exception("Contenido no permitido en la marca");
+        var vehiculos = await _vehiculoRepository.GetAll();
+
+       
+        if (vehiculos.Any(v => v.Placa == vehiculo.Placa))
+            throw new Exception("La placa ya está registrada");
+
+        
+        if (vehiculos.Any(v =>
+            v.PropietarioId == vehiculo.PropietarioId &&
+            v.Marca == vehiculo.Marca &&
+            v.Modelo == vehiculo.Modelo))
+        {
+            throw new Exception("El propietario ya tiene un vehículo con la misma marca y modelo");
+        }
 
         await _vehiculoRepository.Add(vehiculo);
     }
@@ -48,28 +60,5 @@ public class VehiculoService : IVehiculoService
     public async Task Delete(int id)
     {
         await _vehiculoRepository.Delete(id);
-    }
-
-    
-    public readonly string[] ForbiddenWords =
-    {
-        "odio",
-        "violencia",
-        "ilegal",
-        "robado"
-    };
-
-    public bool ContainsForbiddenWord(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return false;
-
-        foreach (var word in ForbiddenWords)
-        {
-            if (text.Contains(word, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
     }
 }
