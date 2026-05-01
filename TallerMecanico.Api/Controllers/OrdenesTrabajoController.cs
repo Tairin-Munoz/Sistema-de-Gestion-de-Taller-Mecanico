@@ -27,12 +27,23 @@ public class OrdenesTrabajoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(
+    [FromQuery] int? vehiculoId,
+    [FromQuery] int? servicioId,
+    [FromQuery] string? estado)
     {
         var data = await _service.GetAllDapperAsync();
-        var dto = _mapper.Map<IEnumerable<OrdenTrabajoDto>>(data);
 
-        return Ok(new ApiResponse<IEnumerable<OrdenTrabajoDto>>(dto));
+        if (vehiculoId.HasValue)
+            data = data.Where(x => x.VehiculoId == vehiculoId.Value).ToList();
+
+        if (servicioId.HasValue)
+            data = data.Where(x => x.ServicioId == servicioId.Value).ToList();
+
+        if (!string.IsNullOrEmpty(estado))
+            data = data.Where(x => x.Estado.ToLower() == estado.ToLower()).ToList();
+
+        return Ok(data);
     }
 
     [HttpGet("{id}")]

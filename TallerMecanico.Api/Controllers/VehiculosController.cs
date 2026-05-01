@@ -29,16 +29,21 @@ public class VehiculosController : ControllerBase
         _actualizarValidator = actualizarValidator;
     }
 
-  
+
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(
+    [FromQuery] string? marca,
+    [FromQuery] string? modelo)
     {
-        var vehiculos = await _service.GetAllAsync();
-        var vehiculosDto = _mapper.Map<IEnumerable<VehiculoDto>>(vehiculos);
+        var data = await _service.GetAllAsync();
 
-        var response = new ApiResponse<IEnumerable<VehiculoDto>>(vehiculosDto);
+        if (!string.IsNullOrEmpty(marca))
+            data = data.Where(x => x.Marca.ToLower().Contains(marca.ToLower())).ToList();
 
-        return Ok(response);
+        if (!string.IsNullOrEmpty(modelo))
+            data = data.Where(x => x.Modelo.ToLower().Contains(modelo.ToLower())).ToList();
+
+        return Ok(data);
     }
 
     [HttpGet("{id}")]
