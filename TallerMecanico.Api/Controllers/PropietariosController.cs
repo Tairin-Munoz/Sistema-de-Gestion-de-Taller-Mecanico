@@ -30,11 +30,19 @@ public class PropietariosController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(
+    [FromQuery] string? nombre,
+    [FromQuery] string? ci)
     {
         var data = await _service.GetAllAsync();
-        var dto = _mapper.Map<IEnumerable<PropietarioDto>>(data);
-        return Ok(new ApiResponse<IEnumerable<PropietarioDto>>(dto));
+
+        if (!string.IsNullOrEmpty(nombre))
+            data = data.Where(x => x.Nombre.ToLower().Contains(nombre.ToLower())).ToList();
+
+        if (!string.IsNullOrEmpty(ci))
+            data = data.Where(x => x.CI.Contains(ci)).ToList();
+
+        return Ok(data);
     }
 
     [HttpGet("{id}")]

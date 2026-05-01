@@ -30,9 +30,22 @@ public class ServiciosController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(
+    [FromQuery] string? nombre,
+    [FromQuery] decimal? precio,
+    [FromQuery] bool? activo)
     {
         var data = await _service.GetAllDapperAsync();
+
+        if (!string.IsNullOrEmpty(nombre))
+            data = data.Where(x => x.Nombre.ToLower().Contains(nombre.ToLower())).ToList();
+
+        if (precio.HasValue)
+            data = data.Where(x => x.Precio >= precio.Value).ToList();
+
+        if (activo.HasValue)
+            data = data.Where(x => x.Activo == activo.Value).ToList();
+
         var dto = _mapper.Map<IEnumerable<ServicioDto>>(data);
 
         return Ok(new ApiResponse<IEnumerable<ServicioDto>>(dto));
