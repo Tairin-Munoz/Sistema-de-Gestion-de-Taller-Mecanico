@@ -29,6 +29,22 @@ public class ServiciosController : ControllerBase
         _actualizarValidator = actualizarValidator;
     }
 
+    /// <summary>
+    /// Recupera la lista de servicios del taller mecánico
+    /// </summary>
+    /// <remarks>
+    /// Este método obtiene los servicios registrados en el sistema.
+    /// Utiliza Dapper para consultas optimizadas (GET) y AutoMapper
+    /// para convertir las entidades en DTOs.
+    /// Si ocurre un error, se devuelve un estado HTTP 500.
+    /// </remarks>
+    /// <returns>
+    /// Un <see cref="IActionResult"/> que contiene una lista de 
+    /// <see cref="ServicioDto"/>.
+    /// </returns>
+    /// <response code="200">Retorna la lista de servicios</response>
+    /// <response code="404">No existen servicios registrados</response>
+    /// <response code="500">Error interno del servidor</response>
     [HttpGet]
     public async Task<IActionResult> Get(
     [FromQuery] string? nombre,
@@ -64,6 +80,21 @@ public class ServiciosController : ControllerBase
         return Ok(new ApiResponse<ServicioDto>(dto));
     }
 
+
+
+    /// <summary>
+    /// Registra un nuevo servicio en el sistema
+    /// </summary>
+    /// <remarks>
+    /// Este método permite crear un nuevo servicio validando los datos
+    /// mediante FluentValidation y guardándolo en la base de datos
+    /// usando Entity Framework Core.
+    /// </remarks>
+    /// <param name="dto">Datos del servicio a registrar</param>
+    /// <returns>Servicio creado correctamente</returns>
+    /// <response code="201">Servicio creado</response>
+    /// <response code="400">Datos inválidos</response>
+    /// <response code="500">Error interno</response>
     [HttpPost]
     public async Task<IActionResult> Post(ServicioDto dto)
     {
