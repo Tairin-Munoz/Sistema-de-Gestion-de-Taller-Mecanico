@@ -1,4 +1,3 @@
-TallerMecanico.Core\DTOs\LoginDto.cs
 namespace TallerMecanico.Core.DTOs
 {
     public class LoginDto

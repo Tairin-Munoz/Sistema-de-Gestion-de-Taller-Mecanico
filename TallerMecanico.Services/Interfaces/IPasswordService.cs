@@ -1,4 +1,3 @@
-TallerMecanico.Services\Interfaces\IPasswordService.cs
 namespace TallerMecanico.Services.Interfaces
 {
     public interface IPasswordService

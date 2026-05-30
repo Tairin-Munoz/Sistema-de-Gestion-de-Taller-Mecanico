@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using TallerMecanico.Api.Responses;
 using TallerMecanico.Core.DTOs;
 using TallerMecanico.Core.Entities;
+using TallerMecanico.Core.Pagination;
+using TallerMecanico.Core.QueryFilters;
 using TallerMecanico.Services.Interfaces;
 using TallerMecanico.Services.Validators;
 
@@ -10,6 +13,7 @@ namespace TallerMecanico.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class OrdenesTrabajoController : ControllerBase
 {
     private readonly IOrdenTrabajoService _service;
@@ -27,23 +31,29 @@ public class OrdenesTrabajoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get(
-    [FromQuery] int? vehiculoId,
-    [FromQuery] int? servicioId,
-    [FromQuery] string? estado)
+    public async Task<IActionResult> Get([FromQuery] OrdenTrabajoQueryFilter filter)
     {
         var data = await _service.GetAllDapperAsync();
 
-        if (vehiculoId.HasValue)
-            data = data.Where(x => x.VehiculoId == vehiculoId.Value).ToList();
+        if (filter.VehiculoId.HasValue)
+            data = data.Where(x => x.VehiculoId == filter.VehiculoId.Value).ToList();
 
-        if (servicioId.HasValue)
-            data = data.Where(x => x.ServicioId == servicioId.Value).ToList();
+        if (filter.ServicioId.HasValue)
+            data = data.Where(x => x.ServicioId == filter.ServicioId.Value).ToList();
 
-        if (!string.IsNullOrEmpty(estado))
-            data = data.Where(x => x.Estado.ToLower() == estado.ToLower()).ToList();
+        if (!string.IsNullOrWhiteSpace(filter.Estado))
+            data = data.Where(x => x.Estado.Contains(filter.Estado, StringComparison.OrdinalIgnoreCase)).ToList();
 
-        return Ok(data);
+        if (filter.FechaDesde.HasValue)
+            data = data.Where(x => x.Fecha >= filter.FechaDesde.Value).ToList();
+
+        if (filter.FechaHasta.HasValue)
+            data = data.Where(x => x.Fecha <= filter.FechaHasta.Value).ToList();
+
+        var dto = _mapper.Map<IEnumerable<OrdenTrabajoDto>>(data);
+        var paged = PagedList<OrdenTrabajoDto>.Create(dto, filter.PageNumber, filter.PageSize);
+
+        return Ok(new ApiResponse<PagedList<OrdenTrabajoDto>>(paged, true, "Ã“rdenes obtenidas", null, paged.Pagination));
     }
 
     [HttpGet("{id}")]
@@ -62,26 +72,12 @@ public class OrdenesTrabajoController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post(OrdenTrabajoDto dto)
     {
-        var validation = await _crearValidator.ValidateAsync(dto);
-
-        if (!validation.IsValid)
-        {
-            return BadRequest(new
-            {
-                message = "Error de validación",
-                errors = validation.Errors.Select(e => new
-                {
-                    field = e.PropertyName,
-                    error = e.ErrorMessage
-                })
-            });
-        }
+        await _crearValidator.ValidateAndThrowAsync(dto);
 
         var entity = _mapper.Map<OrdenTrabajo>(dto);
-
         await _service.Insert(entity);
 
-        return Ok(new ApiResponse<OrdenTrabajoDto>(dto));
+        return Created(string.Empty, new ApiResponse<OrdenTrabajoDto>(dto, true, "Orden de trabajo creada"));
     }
 
     [HttpPut("{id}")]
@@ -99,7 +95,7 @@ public class OrdenesTrabajoController : ControllerBase
 
         await _service.Update(orden);
 
-        return Ok(new ApiResponse<OrdenTrabajoDto>(dto));
+        return Ok(new ApiResponse<OrdenTrabajoDto>(dto, true, "Orden de trabajo actualizada"));
     }
 
     [HttpDelete("{id}")]

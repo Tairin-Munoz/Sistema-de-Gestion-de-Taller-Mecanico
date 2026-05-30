@@ -1,7 +1,11 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.Reflection;
+using System.Text;
 using TallerMecanico.Core.Interfaces;
 using TallerMecanico.Infrastructure.Data;
 using TallerMecanico.Infrastructure.Mappings;
@@ -35,13 +39,36 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    // 🔥 IMPORTANTE: leer comentarios XML (///)
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 
-    // 🔥 Para anotaciones tipo SwaggerSchema
     options.EnableAnnotations();
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Ingrese el token JWT en formato Bearer {token}"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
 });
 
 // =========================
@@ -69,17 +96,46 @@ builder.Services.AddScoped<IVehiculoService, VehiculoService>();
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
 builder.Services.AddScoped<IServicioService, ServicioService>();
 builder.Services.AddScoped<IOrdenTrabajoService, OrdenTrabajoService>();
+builder.Services.AddScoped<ITecnicoService, TecnicoService>();
+builder.Services.AddScoped<IHistorialService, HistorialService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 // =========================
 // 📌 AutoMapper
 // =========================
-builder.Services.AddAutoMapper(typeof(VehiculoProfile));
+builder.Services.AddAutoMapper(typeof(VehiculoProfile).Assembly);
 
 // =========================
 // 📌 FluentValidation
 // =========================
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CrearVehiculoDtoValidator>();
+
+// =========================
+// 📌 JWT Authentication
+// =========================
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSettings.GetValue<string>("SecretKey") ?? string.Empty;
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
+        ValidAudience = jwtSettings.GetValue<string>("Audience"),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+});
 
 // =========================
 // 🚀 BUILD
@@ -96,14 +152,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "API Taller Mecánico v1");
-        options.RoutePrefix = "swagger"; // puedes poner "" si quieres que abra en la raíz
+        options.RoutePrefix = "swagger";
     });
 }
 
 // =========================
 // 📌 Middlewares
 // =========================
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 
 // =========================
