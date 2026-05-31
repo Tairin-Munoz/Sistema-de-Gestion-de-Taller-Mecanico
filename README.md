@@ -23,7 +23,7 @@ El sistema implementa **arquitectura en capas**, **autenticación JWT** y un enf
 
 ---
 
-## 🏗️ Arquitectura del Proyecto
+## Arquitectura del Proyecto
 
 El sistema está organizado bajo una arquitectura en capas:
 
@@ -60,7 +60,7 @@ Esta estructura permite:
 
 ---
 
-## 🧩 Patrones Implementados
+##  Patrones Implementados
 
 ### Repository Pattern
 
@@ -76,7 +76,7 @@ Organiza el sistema separando API, Services, Infrastructure y Core.
 
 ---
 
-## ⚙️ Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 
 * ASP.NET Core Web API
 * C#
@@ -94,7 +94,7 @@ Organiza el sistema separando API, Services, Infrastructure y Core.
 
 ---
 
-## 🔐 Autenticación JWT
+##  Autenticación JWT
 
 La API utiliza autenticación JWT para proteger endpoints.
 
@@ -123,7 +123,7 @@ Bearer TOKEN
 
 ---
 
-## 📡 Endpoints Principales
+##  Endpoints Principales
 
 ### Auth
 
@@ -176,7 +176,7 @@ Bearer TOKEN
 
 ---
 
-## ☁️ Despliegue en Azure
+##  Despliegue en Azure
 
 La API fue desplegada en **Azure App Service**.
 
@@ -190,7 +190,7 @@ https://taller-mecanico-tairin-api.azurewebsites.net
 
 ---
 
-## 🧪 Pruebas
+##  Pruebas
 
 Las pruebas del sistema fueron realizadas mediante:
 
@@ -208,7 +208,7 @@ Se validaron:
 
 ---
 
-## 📋 Gestión del Proyecto
+##  Gestión del Proyecto
 
 La planificación y seguimiento del desarrollo se realizó utilizando **Scrum** y **Trello**.
 
@@ -220,22 +220,3 @@ Incluyendo:
 * Terminado
 
 ---
-
-## 👩‍💻 Autor
-
-**Tairin Andrea Muñoz Claros**
-Universidad Católica Boliviana
-Ingeniería de Sistemas
-
----
-
-## ⭐ Estado del Proyecto
-
-Proyecto académico funcional y desplegado en Azure.
-
-Preparado para futuras mejoras:
-
-* Control por roles
-* Auditoría
-* Reportes
-* Nuevos módulos del taller
