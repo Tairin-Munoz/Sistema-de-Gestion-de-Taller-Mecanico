@@ -21,6 +21,11 @@ public class UsersController : ControllerBase
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Recupera la lista de usuarios registrados.
+    /// </summary>
+    /// <response code="200">Lista obtenida correctamente</response>
+    /// <response code="404">No existen usuarios</response>
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -29,6 +34,12 @@ public class UsersController : ControllerBase
         return Ok(new ApiResponse<IEnumerable<UserDto>>(dtos, true, "Usuarios obtenidos"));
     }
 
+    /// <summary>
+    /// Obtiene un usuario por identificador.
+    /// </summary>
+    /// <param name="id">Id del usuario</param>
+    /// <response code="200">Usuario encontrado</response>
+    /// <response code="404">Usuario no encontrado</response>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -37,6 +48,12 @@ public class UsersController : ControllerBase
         return Ok(new ApiResponse<UserDto>(dto, true, "Usuario encontrado"));
     }
 
+    /// <summary>
+    /// Elimina un usuario del sistema.
+    /// </summary>
+    /// <param name="id">Id del usuario</param>
+    /// <response code="200">Usuario eliminado</response>
+    /// <response code="404">Usuario no encontrado</response>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

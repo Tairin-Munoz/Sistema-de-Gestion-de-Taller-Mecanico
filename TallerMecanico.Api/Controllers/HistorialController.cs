@@ -9,6 +9,7 @@ using TallerMecanico.Services.Interfaces;
 
 namespace TallerMecanico.Api.Controllers;
 
+
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
@@ -20,7 +21,26 @@ public class HistorialController : ControllerBase
     {
         _service = service;
     }
-
+    /// <summary>
+    /// Recupera el historial de servicios y órdenes de trabajo.
+    /// </summary>
+    /// <remarks>
+    /// Permite consultar el historial mediante filtros
+    /// por vehículo, placa, propietario,
+    /// estado y rango de fechas.
+    /// </remarks>
+    /// <param name="filter">
+    /// Filtros de búsqueda del historial.
+    /// </param>
+    /// <response code="200">
+    /// Historial obtenido correctamente.
+    /// </response>
+    /// <response code="400">
+    /// Parámetros de búsqueda inválidos.
+    /// </response>
+    /// <response code="500">
+    /// Error interno del servidor.
+    /// </response>
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] HistorialQueryFilter filter)
     {

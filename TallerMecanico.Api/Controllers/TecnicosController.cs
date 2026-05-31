@@ -34,6 +34,9 @@ public class TecnicosController : ControllerBase
         _actualizarValidator = actualizarValidator;
     }
 
+    /// <summary>
+    /// Recupera la lista de técnicos registrados.
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] TecnicoQueryFilter filter)
     {
@@ -51,6 +54,9 @@ public class TecnicosController : ControllerBase
         return Ok(new ApiResponse<PagedList<TecnicoDto>>(paged, true, "Técnicos obtenidos"));
     }
 
+    /// <summary>
+    /// Obtiene un técnico por identificador.
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -59,6 +65,9 @@ public class TecnicosController : ControllerBase
         return Ok(new ApiResponse<TecnicoDto>(dto, true, "Técnico encontrado"));
     }
 
+    /// <summary>
+    /// Registra un nuevo técnico.
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> Post(TecnicoDto dto)
     {
@@ -70,6 +79,9 @@ public class TecnicosController : ControllerBase
         return Created(string.Empty, new ApiResponse<TecnicoDto>(dto, true, "Técnico creado"));
     }
 
+    /// <summary>
+    /// Actualiza un técnico existente.
+    /// </summary>
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, TecnicoDto dto)
     {
@@ -85,6 +97,9 @@ public class TecnicosController : ControllerBase
         return Ok(new ApiResponse<TecnicoDto>(dto, true, "Técnico actualizado"));
     }
 
+    /// <summary>
+    /// Elimina un técnico.
+    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

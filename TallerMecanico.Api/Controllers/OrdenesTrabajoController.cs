@@ -31,6 +31,9 @@ public class OrdenesTrabajoController : ControllerBase
         _crearValidator = crearValidator;
     }
 
+    /// <summary>
+    /// Recupera la lista de órdenes de trabajo.
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] OrdenTrabajoQueryFilter filter)
     {
@@ -57,6 +60,9 @@ public class OrdenesTrabajoController : ControllerBase
         return Ok(new ApiResponse<PagedList<OrdenTrabajoDto>>(paged, true, "Órdenes obtenidas", null, paged.Pagination));
     }
 
+    /// <summary>
+    /// Obtiene una orden de trabajo por identificador.
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -70,6 +76,9 @@ public class OrdenesTrabajoController : ControllerBase
         return Ok(new ApiResponse<OrdenTrabajoDto>(dto));
     }
 
+    /// <summary>
+    /// Registra una nueva orden de trabajo.
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> Post(OrdenTrabajoDto dto)
     {
@@ -81,6 +90,9 @@ public class OrdenesTrabajoController : ControllerBase
         return Created(string.Empty, new ApiResponse<OrdenTrabajoDto>(dto, true, "Orden de trabajo creada"));
     }
 
+    /// <summary>
+    /// Actualiza una orden de trabajo existente.
+    /// </summary>
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, OrdenTrabajoDto dto)
     {
@@ -99,6 +111,9 @@ public class OrdenesTrabajoController : ControllerBase
         return Ok(new ApiResponse<OrdenTrabajoDto>(dto, true, "Orden de trabajo actualizada"));
     }
 
+    /// <summary>
+    /// Elimina una orden de trabajo.
+    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

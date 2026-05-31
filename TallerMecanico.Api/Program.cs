@@ -17,14 +17,8 @@ using TallerMecanico.Services.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =========================
-// 📌 Controllers + JSON
-// =========================
 builder.Services.AddControllers();
 
-// =========================
-// 📌 Swagger (DOCUMENTACIÓN PRO)
-// =========================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -67,32 +61,19 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            Array.Empty<string>()
         }
     });
 });
 
-// =========================
-// 📌 Base de Datos
-// =========================
 builder.Services.AddDbContext<TallerMecanicoContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// =========================
-// 📌 Repositorios + UnitOfWork
-// =========================
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// =========================
-// 📌 Dapper (GET optimizados)
-// =========================
 builder.Services.AddScoped<IDapperContext, DapperContext>();
 
-// =========================
-// 📌 Services (lógica negocio)
-// =========================
 builder.Services.AddScoped<IVehiculoService, VehiculoService>();
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
 builder.Services.AddScoped<IServicioService, ServicioService>();
@@ -102,20 +83,11 @@ builder.Services.AddScoped<IHistorialService, HistorialService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 
-// =========================
-// 📌 AutoMapper
-// =========================
 builder.Services.AddAutoMapper(typeof(VehiculoProfile).Assembly);
 
-// =========================
-// 📌 FluentValidation
-// =========================
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CrearVehiculoDtoValidator>();
 
-// =========================
-// 📌 JWT Authentication
-// =========================
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings.GetValue<string>("SecretKey") ?? string.Empty;
 
@@ -138,14 +110,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// =========================
-// 🚀 BUILD
-// =========================
 var app = builder.Build();
 
-// =========================
-// 📌 Swagger UI
-// =========================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -157,22 +123,14 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// =========================
-// 📌 Middlewares
-// =========================
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// =========================
-// 📌 Endpoints
-// =========================
 app.MapControllers();
 
-// =========================
-// 📌 Crear DB automáticamente
-// =========================
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<TallerMecanicoContext>();

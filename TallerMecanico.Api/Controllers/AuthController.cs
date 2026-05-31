@@ -40,7 +40,12 @@ public class AuthController : ControllerBase
         _loginValidator = loginValidator;
         _registerValidator = registerValidator;
     }
-
+    /// <summary>
+    /// Registra un nuevo usuario del sistema.
+    /// </summary>
+    /// <param name="dto">Datos de registro del usuario</param>
+    /// <response code="201">Usuario registrado correctamente</response>
+    /// <response code="400">Datos inválidos</response>
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register(RegisterDto dto)
@@ -53,6 +58,12 @@ public class AuthController : ControllerBase
         return Created(string.Empty, new ApiResponse<UserDto>(result, true, "Usuario registrado correctamente"));
     }
 
+    /// <summary>
+    /// Inicia sesión y genera un token JWT.
+    /// </summary>
+    /// <param name="dto">Credenciales del usuario</param>
+    /// <response code="200">Inicio de sesión correcto</response>
+    /// <response code="401">Credenciales inválidas</response>
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login(LoginDto dto)

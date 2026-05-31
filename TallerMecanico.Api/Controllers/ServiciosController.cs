@@ -73,6 +73,9 @@ public class ServiciosController : ControllerBase
         return Ok(new ApiResponse<PagedList<ServicioDto>>(paged, true, "Servicios obtenidos", null, paged.Pagination));
     }
 
+    /// <summary>
+    /// Obtiene un servicio mecánico por identificador.
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -113,6 +116,9 @@ public class ServiciosController : ControllerBase
         return Created(string.Empty, new ApiResponse<ServicioDto>(result, true, "Servicio creado"));
     }
 
+    /// <summary>
+    /// Actualiza un servicio mecánico.
+    /// </summary>
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, ServicioDto dto)
     {
@@ -131,6 +137,9 @@ public class ServiciosController : ControllerBase
         return Ok(new ApiResponse<ServicioDto>(dto, true, "Servicio actualizado"));
     }
 
+    /// <summary>
+    /// Elimina un servicio mecánico.
+    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

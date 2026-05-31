@@ -34,7 +34,10 @@ public class VehiculosController : ControllerBase
         _actualizarValidator = actualizarValidator;
     }
 
-
+    /// <summary>
+    /// Recupera la lista de vehículos registrados.
+    /// </summary>
+    /// <response code="200">Lista obtenida correctamente</response>
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] VehiculoQueryFilter filter)
     {
@@ -58,6 +61,9 @@ public class VehiculosController : ControllerBase
         return Ok(new ApiResponse<PagedList<VehiculoDto>>(paged, true, "Vehículos obtenidos", null, paged.Pagination));
     }
 
+    /// <summary>
+    /// Obtiene un vehículo por identificador.
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -70,6 +76,11 @@ public class VehiculosController : ControllerBase
         return Ok(new ApiResponse<VehiculoDto>(dto, true, "Vehículo encontrado"));
     }
 
+    /// <summary>
+    /// Registra un nuevo vehículo.
+    /// </summary>
+    /// <param name="dto">Datos del vehículo</param>
+    /// <response code="201">Vehículo registrado</response>
     [HttpPost]
     public async Task<IActionResult> Post(VehiculoDto dto)
     {
@@ -81,6 +92,9 @@ public class VehiculosController : ControllerBase
         return Created(string.Empty, new ApiResponse<VehiculoDto>(dto, true, "Vehículo creado"));
     }
 
+    /// <summary>
+    /// Actualiza un vehículo existente.
+    /// </summary>
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, VehiculoDto dto)
     {
@@ -98,7 +112,9 @@ public class VehiculosController : ControllerBase
 
         return Ok(new ApiResponse<VehiculoDto>(dto, true, "Vehículo actualizado"));
     }
-
+    /// <summary>
+    /// Elimina un vehículo.
+    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

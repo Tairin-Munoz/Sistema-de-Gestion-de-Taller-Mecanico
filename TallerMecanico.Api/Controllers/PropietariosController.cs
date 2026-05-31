@@ -32,6 +32,11 @@ public class PropietariosController : ControllerBase
         _actualizarValidator = actualizarValidator;
     }
 
+    /// <summary>
+    /// Recupera la lista de propietarios registrados.
+    /// </summary>
+    /// <response code="200">Lista obtenida correctamente</response>
+    /// <response code="404">No existen propietarios</response>
     [HttpGet]
     public async Task<IActionResult> Get(
         [FromQuery] string? nombre,
@@ -49,6 +54,12 @@ public class PropietariosController : ControllerBase
         return Ok(new ApiResponse<IEnumerable<PropietarioDto>>(dto, true, "Propietarios obtenidos"));
     }
 
+    /// <summary>
+    /// Obtiene un propietario por identificador.
+    /// </summary>
+    /// <param name="id">Id del propietario</param>
+    /// <response code="200">Propietario encontrado</response>
+    /// <response code="404">Propietario no encontrado</response>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -60,6 +71,12 @@ public class PropietariosController : ControllerBase
         return Ok(new ApiResponse<PropietarioDto>(dto, true, "Propietario encontrado"));
     }
 
+    /// <summary>
+    /// Registra un nuevo propietario.
+    /// </summary>
+    /// <param name="dto">Datos del propietario</param>
+    /// <response code="201">Propietario registrado</response>
+    /// <response code="400">Datos inválidos</response>
     [HttpPost]
     public async Task<IActionResult> Post(PropietarioDto dto)
     {
@@ -71,6 +88,11 @@ public class PropietariosController : ControllerBase
         return Created(string.Empty, new ApiResponse<PropietarioDto>(dto, true, "Propietario creado"));
     }
 
+    /// <summary>
+    /// Actualiza un propietario existente.
+    /// </summary>
+    /// <param name="id">Id del propietario</param>
+    /// <response code="200">Propietario actualizado</response>
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, PropietarioDto dto)
     {
@@ -84,6 +106,11 @@ public class PropietariosController : ControllerBase
         return Ok(new ApiResponse<PropietarioDto>(dto, true, "Propietario actualizado"));
     }
 
+    /// <summary>
+    /// Elimina un propietario.
+    /// </summary>
+    /// <param name="id">Id del propietario</param>
+    /// <response code="200">Propietario eliminado</response>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
