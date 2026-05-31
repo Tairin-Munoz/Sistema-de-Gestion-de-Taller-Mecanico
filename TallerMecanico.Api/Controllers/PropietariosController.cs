@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
+using FluentValidation;
 using TallerMecanico.Api.Responses;
 using TallerMecanico.Core.DTOs;
 using TallerMecanico.Core.Entities;

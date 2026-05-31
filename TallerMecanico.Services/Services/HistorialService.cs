@@ -30,8 +30,8 @@ public class HistorialService : IHistorialService
                 ot.Estado,
                 s.Precio
             FROM OrdenesTrabajo ot
-            INNER JOIN Vehiculos v ON ot.VehiculoId = v.Id
-            INNER JOIN Propietarios p ON v.PropietarioId = p.Id
+            INNER JOIN vehiculo v ON ot.VehiculoId = v.Id
+            INNER JOIN propietario p ON v.PropietarioId = p.Id
             INNER JOIN Servicios s ON ot.ServicioId = s.Id
             WHERE 1 = 1";
 
