@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
+using FluentValidation;
 using TallerMecanico.Api.Responses;
 using TallerMecanico.Core.DTOs;
 using TallerMecanico.Core.Entities;
+using TallerMecanico.Core.Pagination;
+using TallerMecanico.Core.QueryFilters;
 using TallerMecanico.Services.Interfaces;
 using TallerMecanico.Services.Validators;
 
@@ -10,6 +14,7 @@ namespace TallerMecanico.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class VehiculosController : ControllerBase
 {
     private readonly IVehiculoService _service;
@@ -29,128 +34,96 @@ public class VehiculosController : ControllerBase
         _actualizarValidator = actualizarValidator;
     }
 
-
+    /// <summary>
+    /// Recupera la lista de vehículos registrados.
+    /// </summary>
+    /// <response code="200">Lista obtenida correctamente</response>
     [HttpGet]
-    public async Task<IActionResult> Get(
-    [FromQuery] string? marca,
-    [FromQuery] string? modelo)
+    public async Task<IActionResult> Get([FromQuery] VehiculoQueryFilter filter)
     {
         var data = await _service.GetAllAsync();
 
-        if (!string.IsNullOrEmpty(marca))
-            data = data.Where(x => x.Marca.ToLower().Contains(marca.ToLower())).ToList();
+        if (!string.IsNullOrWhiteSpace(filter.Marca))
+            data = data.Where(x => x.Marca.Contains(filter.Marca, StringComparison.OrdinalIgnoreCase));
 
-        if (!string.IsNullOrEmpty(modelo))
-            data = data.Where(x => x.Modelo.ToLower().Contains(modelo.ToLower())).ToList();
+        if (!string.IsNullOrWhiteSpace(filter.Modelo))
+            data = data.Where(x => x.Modelo.Contains(filter.Modelo, StringComparison.OrdinalIgnoreCase));
 
-        return Ok(data);
+        if (!string.IsNullOrWhiteSpace(filter.Placa))
+            data = data.Where(x => x.Placa.Contains(filter.Placa, StringComparison.OrdinalIgnoreCase));
+
+        if (filter.PropietarioId.HasValue)
+            data = data.Where(x => x.PropietarioId == filter.PropietarioId.Value);
+
+        var dto = _mapper.Map<IEnumerable<VehiculoDto>>(data);
+        var paged = PagedList<VehiculoDto>.Create(dto, filter.PageNumber, filter.PageSize);
+
+        return Ok(new ApiResponse<PagedList<VehiculoDto>>(paged, true, "Vehículos obtenidos", null, paged.Pagination));
     }
 
+    /// <summary>
+    /// Obtiene un vehículo por identificador.
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var vehiculo = await _service.GetByIdAsync(id);
 
         if (vehiculo == null)
-            return NotFound("Vehículo no encontrado");
+            return NotFound(new ApiResponse<object>(null, false, "Vehículo no encontrado"));
 
         var dto = _mapper.Map<VehiculoDto>(vehiculo);
-
-        return Ok(new ApiResponse<VehiculoDto>(dto));
+        return Ok(new ApiResponse<VehiculoDto>(dto, true, "Vehículo encontrado"));
     }
 
-    
+    /// <summary>
+    /// Registra un nuevo vehículo.
+    /// </summary>
+    /// <param name="dto">Datos del vehículo</param>
+    /// <response code="201">Vehículo registrado</response>
     [HttpPost]
     public async Task<IActionResult> Post(VehiculoDto dto)
     {
-        var validation = await _crearValidator.ValidateAsync(dto);
+        await _crearValidator.ValidateAndThrowAsync(dto);
 
-        if (!validation.IsValid)
-        {
-            return BadRequest(new
-            {
-                message = "Error de validación",
-                errors = validation.Errors.Select(e => new
-                {
-                    field = e.PropertyName,
-                    error = e.ErrorMessage
-                })
-            });
-        }
+        var entity = _mapper.Map<Vehiculo>(dto);
+        await _service.Insert(entity);
 
-        try
-        {
-            var entity = _mapper.Map<Vehiculo>(dto);
-            await _service.Insert(entity);
-
-            return Ok(new ApiResponse<VehiculoDto>(dto));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                message = "Error al crear vehículo",
-                error = ex.Message
-            });
-        }
+        return Created(string.Empty, new ApiResponse<VehiculoDto>(dto, true, "Vehículo creado"));
     }
 
-  
+    /// <summary>
+    /// Actualiza un vehículo existente.
+    /// </summary>
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, VehiculoDto dto)
     {
         if (id != dto.Id)
-            return BadRequest("El ID no coincide");
+            return BadRequest(new ApiResponse<object>(null, false, "El ID no coincide"));
 
-        var validation = await _actualizarValidator.ValidateAsync(dto);
-
-        if (!validation.IsValid)
-        {
-            return BadRequest(new
-            {
-                message = "Error de validación",
-                errors = validation.Errors.Select(e => new
-                {
-                    field = e.PropertyName,
-                    error = e.ErrorMessage
-                })
-            });
-        }
+        await _actualizarValidator.ValidateAndThrowAsync(dto);
 
         var vehiculo = await _service.GetByIdAsync(id);
-
         if (vehiculo == null)
-            return NotFound("Vehículo no encontrado");
+            return NotFound(new ApiResponse<object>(null, false, "Vehículo no encontrado"));
 
-        try
-        {
-            _mapper.Map(dto, vehiculo);
+        _mapper.Map(dto, vehiculo);
+        await _service.Update(vehiculo);
 
-            await _service.Update(vehiculo);
-
-            return Ok(new ApiResponse<VehiculoDto>(dto));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                message = "Error al actualizar",
-                error = ex.Message
-            });
-        }
+        return Ok(new ApiResponse<VehiculoDto>(dto, true, "Vehículo actualizado"));
     }
-
-    
+    /// <summary>
+    /// Elimina un vehículo.
+    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
         var vehiculo = await _service.GetByIdAsync(id);
 
         if (vehiculo == null)
-            return NotFound("Vehículo no encontrado");
+            return NotFound(new ApiResponse<object>(null, false, "Vehículo no encontrado"));
 
         await _service.Delete(id);
-
         return NoContent();
     }
 }

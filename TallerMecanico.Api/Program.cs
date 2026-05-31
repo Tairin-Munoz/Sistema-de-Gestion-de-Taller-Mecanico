@@ -1,7 +1,12 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Text;
+using TallerMecanico.Api;
 using TallerMecanico.Core.Interfaces;
 using TallerMecanico.Infrastructure.Data;
 using TallerMecanico.Infrastructure.Mappings;
@@ -12,108 +17,127 @@ using TallerMecanico.Services.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =========================
-// 📌 Controllers + JSON
-// =========================
 builder.Services.AddControllers();
 
-// =========================
-// 📌 Swagger (DOCUMENTACIÓN PRO)
-// =========================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new()
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "API Taller Mecánico",
         Version = "v1",
         Description = "API REST para la gestión de propietarios, vehículos, servicios y órdenes de trabajo",
-        Contact = new()
+        Contact = new OpenApiContact
         {
             Name = "Equipo de desarrollo",
             Email = "taller@ucb.edu.bo"
         }
     });
 
-    // 🔥 IMPORTANTE: leer comentarios XML (///)
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    options.IncludeXmlComments(xmlPath);
 
-    // 🔥 Para anotaciones tipo SwaggerSchema
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
+
     options.EnableAnnotations();
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Ingrese el token JWT en formato Bearer {token}"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
-// =========================
-// 📌 Base de Datos
-// =========================
 builder.Services.AddDbContext<TallerMecanicoContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(
+            builder.Configuration.GetConnectionString("DefaultConnection"))
+    ));
 
-// =========================
-// 📌 Repositorios + UnitOfWork
-// =========================
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// =========================
-// 📌 Dapper (GET optimizados)
-// =========================
 builder.Services.AddScoped<IDapperContext, DapperContext>();
 
-// =========================
-// 📌 Services (lógica negocio)
-// =========================
 builder.Services.AddScoped<IVehiculoService, VehiculoService>();
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
 builder.Services.AddScoped<IServicioService, ServicioService>();
 builder.Services.AddScoped<IOrdenTrabajoService, OrdenTrabajoService>();
+builder.Services.AddScoped<ITecnicoService, TecnicoService>();
+builder.Services.AddScoped<IHistorialService, HistorialService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
-// =========================
-// 📌 AutoMapper
-// =========================
-builder.Services.AddAutoMapper(typeof(VehiculoProfile));
+builder.Services.AddAutoMapper(typeof(VehiculoProfile).Assembly);
 
-// =========================
-// 📌 FluentValidation
-// =========================
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CrearVehiculoDtoValidator>();
 
-// =========================
-// 🚀 BUILD
-// =========================
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSettings.GetValue<string>("SecretKey") ?? string.Empty;
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
+        ValidAudience = jwtSettings.GetValue<string>("Audience"),
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(secretKey))
+    };
+});
+
 var app = builder.Build();
 
-// =========================
-// 📌 Swagger UI
-// =========================
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "API Taller Mecánico v1");
+    options.RoutePrefix = "swagger";
+});
 
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API Taller Mecánico v1");
-        options.RoutePrefix = "swagger"; // puedes poner "" si quieres que abra en la raíz
-    });
-}
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
-// =========================
-// 📌 Middlewares
-// =========================
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
-// =========================
-// 📌 Endpoints
-// =========================
 app.MapControllers();
 
-// =========================
-// 📌 Crear DB automáticamente
-// =========================
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<TallerMecanicoContext>();

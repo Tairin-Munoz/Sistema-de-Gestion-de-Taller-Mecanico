@@ -16,6 +16,9 @@ namespace TallerMecanico.Infrastructure.Repositories
         public IBaseRepository<Servicio> ServicioRepository { get; }
         public IBaseRepository<OrdenTrabajo> OrdenTrabajoRepository { get; }
         public IBaseRepository<Vehiculo> VehiculoRepository { get; }
+        public IBaseRepository<Propietario> PropietarioRepository { get; }
+        public IBaseRepository<User> UserRepository { get; }
+        public IBaseRepository<Tecnico> TecnicoRepository { get; }
 
         public UnitOfWork(TallerMecanicoContext context, IDapperContext dapper)
         {
@@ -25,6 +28,9 @@ namespace TallerMecanico.Infrastructure.Repositories
             ServicioRepository = new BaseRepository<Servicio>(_context);
             OrdenTrabajoRepository = new BaseRepository<OrdenTrabajo>(_context);
             VehiculoRepository = new BaseRepository<Vehiculo>(_context);
+            PropietarioRepository = new BaseRepository<Propietario>(_context);
+            UserRepository = new BaseRepository<User>(_context);
+            TecnicoRepository = new BaseRepository<Tecnico>(_context);
         }
 
         public async Task SaveChangesAsync()

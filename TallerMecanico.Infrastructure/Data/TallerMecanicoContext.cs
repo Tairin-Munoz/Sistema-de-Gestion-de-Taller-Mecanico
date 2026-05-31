@@ -15,6 +15,8 @@ namespace TallerMecanico.Infrastructure.Data
         public DbSet<Propietario> Propietarios { get; set; }
         public DbSet<Servicio> Servicios { get; set; }
         public DbSet<OrdenTrabajo> OrdenesTrabajo { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Tecnico> Tecnicos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

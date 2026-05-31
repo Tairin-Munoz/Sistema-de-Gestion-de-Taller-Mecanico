@@ -8,6 +8,9 @@ public interface IUnitOfWork : IDisposable
     IBaseRepository<Servicio> ServicioRepository { get; }
     IBaseRepository<OrdenTrabajo> OrdenTrabajoRepository { get; }
     IBaseRepository<Vehiculo> VehiculoRepository { get; }
+    IBaseRepository<Propietario> PropietarioRepository { get; }
+    IBaseRepository<User> UserRepository { get; }
+    IBaseRepository<Tecnico> TecnicoRepository { get; }
 
     Task SaveChangesAsync();
 
